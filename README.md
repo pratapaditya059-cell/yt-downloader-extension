@@ -148,11 +148,11 @@ backend/downloads/
 
 ### Extension UI
 
-![Extension Screenshot](SCREENSHOTS/ui.png)
+![Extension Screenshot](SCREENSHOTS/updated-ui.png)
 
 ### Download Formats
 
-![Formats Screenshot](SCREENSHOTS/formats.png)
+![Formats Screenshot](SCREENSHOTS/updated-formats.png)
 
 ## Future Improvements
 
