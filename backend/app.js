@@ -67,12 +67,20 @@ app.post("/download", (req, res) => {
 
     const url = req.body.url;
     const formatId = req.body.formatId;
+    const hasVideo = req.body.hasVideo;
+    const hasAudio = req.body.hasAudio;
+
+    let formatCommand = formatId;
+
+    if (hasVideo && !hasAudio) {
+        formatCommand = `${formatId}+bestaudio`;
+    }
 
     console.log("URL:", url);
-    console.log("Format:", formatId);
+    console.log("Downloading with:", formatCommand);
 
     exec(
-        `python -m yt_dlp -f ${formatId} -o "downloads/%(title)s.%(ext)s" "${url}"`,
+        `python -m yt_dlp -f "${formatCommand}" -o "downloads/%(title)s.%(ext)s" "${url}"`,
         (error, stdout, stderr) => {
 
             console.log("STDOUT:");

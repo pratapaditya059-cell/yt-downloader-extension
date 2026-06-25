@@ -90,8 +90,30 @@ console.log("RESPONSE OBJECT:", response);
 
           option.value = f.id;
 
-          option.innerText =
-            `${f.id} - ${f.ext} (${f.resolution})`;
+          option.dataset.hasVideo = f.hasVideo;
+
+  option.dataset.hasAudio = f.hasAudio;
+
+  if (f.hasVideo && f.hasAudio) {
+
+    option.innerText =
+      `🎥 ${f.resolution} (Video + Audio)`;
+
+  }
+
+  else if (f.hasVideo) {
+
+    option.innerText =
+      `🎥 ${f.resolution} (Merged)`;
+
+  }
+
+  else {
+
+    option.innerText =
+      `🎵 Audio Only`;
+
+  }
 
           formatsSelect.appendChild(option);
 
@@ -118,8 +140,17 @@ console.log("RESPONSE OBJECT:", response);
         "click",
         async () => {
 
-          const formatId =
-            formatsSelect.value;
+          const selectedOption =
+  formatsSelect.options[formatsSelect.selectedIndex];
+
+const formatId =
+  selectedOption.value;
+
+const hasVideo =
+  selectedOption.dataset.hasVideo === "true";
+
+const hasAudio =
+  selectedOption.dataset.hasAudio === "true";
 
           if (!formatId) {
 
@@ -148,7 +179,9 @@ console.log("RESPONSE OBJECT:", response);
                   },
                   body: JSON.stringify({
                     url: `https://www.youtube.com/watch?v=${data.videoId}`,
-                    formatId: formatId
+                    formatId: formatId,
+                    hasVideo,
+                    hasAudio
                   })
                 }
               );
