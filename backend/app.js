@@ -6,7 +6,8 @@ app.use(cors());
 
 app.use(express.json());
 
-const { exec } = require("child_process");
+const { exec, spawn } = require("child_process");
+const progressClients = [];
 
 app.post("/metadata", (req, res) => {
 
@@ -79,35 +80,96 @@ app.post("/download", (req, res) => {
     console.log("URL:", url);
     console.log("Downloading with:", formatCommand);
 
-    exec(
-        `python -m yt_dlp -f "${formatCommand}" -o "downloads/%(title)s.%(ext)s" "${url}"`,
-        (error, stdout, stderr) => {
+    const child = spawn("python", [
+        "-m",
+        "yt_dlp",
+        "--no-playlist",
+        "-f",
+        formatCommand,
+        "-o",
+        "downloads/%(title)s.%(ext)s",
+        url
+    ]);
 
-            console.log("STDOUT:");
-            console.log(stdout);
+    child.stdout.on("data", (data) => {
 
-            console.log("STDERR:");
-            console.log(stderr);
+        const output = data.toString();
 
-            if (error) {
+        console.log(output);
 
-                console.log("ERROR:");
-                console.log(error);
+        const match = output.match(/(\d+(?:\.\d+)?)%/);
 
-                return res.status(500).json({
-                    success: false,
-                    message: "Download failed"
-                });
+        if (match) {
 
-            }
+    const percent = match[1];
+
+    console.log("Progress:", percent + "%");
+
+    progressClients.forEach(client => {
+
+        client.write(
+            `data: ${JSON.stringify({
+                percent: percent
+            })}\n\n`
+        );
+
+    });
+
+}
+
+    });
+
+    child.stderr.on("data", (data) => {
+        console.log(data.toString());
+    });
+
+    child.on("close", (code) => {
+
+        console.log("Finished:", code);
+
+        if (code === 0) {
 
             res.json({
                 success: true,
                 message: "Download completed"
             });
 
+        } else {
+
+            res.status(500).json({
+                success: false,
+                message: "Download failed"
+            });
+
         }
-    );
+
+    });
+
+});
+
+app.get("/progress", (req, res) => {
+
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    res.flushHeaders();
+
+    progressClients.push(res);
+
+    console.log("Client connected");
+
+    req.on("close", () => {
+
+        const index = progressClients.indexOf(res);
+
+        if (index !== -1) {
+            progressClients.splice(index, 1);
+        }
+
+        console.log("Client disconnected");
+
+    });
 
 });
 

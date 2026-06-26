@@ -166,6 +166,20 @@ const hasAudio =
           downloadBtn.innerText =
             "Downloading...";
 
+            const eventSource = new EventSource(
+    "http://localhost:3000/progress"
+);
+
+eventSource.onmessage = (event) => {
+
+    const progress =
+        JSON.parse(event.data);
+
+    status.innerText =
+        `Downloading... ${progress.percent}%`;
+
+};
+
           try {
 
             const response =
@@ -188,6 +202,8 @@ const hasAudio =
 
             const result =
               await response.json();
+
+              eventSource.close();
 
             alert(result.message);
 
