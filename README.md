@@ -13,6 +13,7 @@ A Chrome Extension that extracts YouTube video metadata and downloads videos usi
 * Display available download formats
 * Download videos directly from the extension
 * Uses yt-dlp for reliable downloads
+* Shows Downloading percentage
 * Built using Chrome Extension Manifest V3
 * Node.js + Express backend
 
@@ -156,9 +157,6 @@ backend/downloads/
 
 ## Future Improvements
 
-* Download progress indicator
 * Better UI/UX
-* Audio-only downloads
-* Video quality filters
 * Download history
 * Automatic filename customization
